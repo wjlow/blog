@@ -1,4 +1,4 @@
-Intro
+How a Monad can be useful
 =================
 
 Disclaimer: This is not a comprehensive Monad tutorial. I aim to demonstrate why a concrete example of a Monad is useful in programming.
@@ -10,7 +10,7 @@ def stringToDouble(str: String): Double =
   str.toDouble
 ```
 
-What happens if `stringToDouble` is called with `"800"`? You get a `java.lang.NumberFormatException`.
+What happens if `stringToDouble` is called with `"800"`? You get a `java.lang.NumberFormatException`. Exceptions are evil! How can a function that returns `Double` do anything but return `Double`? Let's fix up our function to no longer lie to us.
 
 Error handling example
 =================
