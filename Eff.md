@@ -31,7 +31,7 @@ def getUser[R: ReadDBConfig : _Async : Err](userId: Int): Eff[R, User] = ...
 The code above describes a `getUser` function that has `Reader`, `Future` and `Either` effects. The return type of the function implies that the end result of the effectful stack is a `User`. 
 Now `getUserFirstName` is much simpler to implement. `map`ping a function `A => B` over an `Eff[R, A]` gives you a `Eff[R, B]`. 
 
-``
+```
 def getUserFirstName(userId: Int): Eff[R, UserFirstName] = {
   val user = getUser(userId)
   user map (_.firstName)
