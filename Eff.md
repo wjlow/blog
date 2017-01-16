@@ -32,7 +32,7 @@ The code above describes a `getUser` function that has `Reader`, `Future` and `E
 Now `getUserFirstName` is much simpler to implement. `map`ping a function `A => B` over an `Eff[R, A]` gives you a `Eff[R, B]`. 
 
 ```
-def getUserFirstName(userId: Int): Eff[R, UserFirstName] = {
+def getUserFirstName[R: ReadDBConfig : _Async : Err](userId: Int): Eff[R, UserFirstName] = {
   val user = getUser(userId)
   user map (_.firstName)
 }
