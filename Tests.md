@@ -190,3 +190,34 @@ def showTrafficLight(trafficLight: TrafficLight): String = trafficLight match {
 ```
 
 Notice we don't need to handle the case where `trafficLight` is neither `Red`, `Green` nor `Yellow` because it's impossible for it to get into this state! We handle the invalid case once in the safe constructor earlier on in the program (when parsing from a file, reading from HTTP, etc.) and then the rest of the program can _safely_ assume that it is working with a valid `TrafficLight`.
+
+### Example 3: Refinement types
+
+Let's look at a type that represents a `Person` with a `name` and `age`.
+
+```
+case class Person(name: String, age: Int)
+```
+
+At first glance, you'd see that `name` is a `String`, which means that a `Person` could technically have a name of length 0 and `age` being an `Int` implies that it can be `-500`. Yikes, do we need to test that our code gracefully handles these cases? No? Isn't this how bugs happen? (I challenge you to start logging unexpected states as warnings. You'd be surprised what odd states your models can get into! Especially since most of us work with web apps, accepting requests from the Internet.)
+
+What if we used [refinement types](https://github.com/fthomas/refined)? Again, this isn't limited to Scala.
+
+```
+type NonEmptyString = Refined[String, NonEmpty]
+type NonZeroInt = Refined[Int, NonZero]
+
+case class Person(name: NonEmptyString, age: NonZeroInt)
+```
+
+We have now _guaranteed_ that any instance of `Person` _will not_ have an empty name or a negative age. Since `Person` probably comes in as an HTTP payload or from a file, we'd need to write a safe constructor like this:
+
+```
+def mkPerson(name: String, age: Int): Option[Person] = 
+  (for {
+    nonEmptyName <- refineV[NonEmpty](name)
+    nonZeroAge   <- refineV[NonZero](age)
+  } yield Person(nonEmptyName, nonZeroAge)).toOption
+```
+
+We still need to write tests for this safe constructor, similar to the traffic light example. However, everywhere else in the codebase that deals with our `Person` now has absolute guarantee that when provided a `Person`, it will not have an empty name or a negative age!
