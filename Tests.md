@@ -6,6 +6,8 @@ Note that a lot of the things I'm going to discuss are worth an entire blog post
 
 Let's explore this topic further with a couple of examples. We'll start off with a simple one.
 
+_Disclaimer: I don't know if the code snippets compile! I wrote this all in GitHub._
+
 ## Parametricity
 
 ### Example 1:
