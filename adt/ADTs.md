@@ -143,6 +143,8 @@ case object Green extends TrafficLight
 case object Blue extends TrafficLight
 ```
 
+![blue](./blue.png)
+
 ---
 
 ![purity](./purity.png)
