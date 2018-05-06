@@ -105,22 +105,23 @@ Possible inputs: 3 vs. _Infinity_
 
 
 ```scala
+def nextTrafficLight(trafficLight: TrafficLight) = 
+  trafficLight match {
+    case Red    => Green
+    case Yellow => Red
+    case Green  => Yellow
+  }
+```
+
+vs.
+
+```scala
 def nextTrafficLight(trafficLight: String) = 
   trafficLight match {
     case "red"    => "green"
     case "yellow" => "red"
     case "green"  => "yellow"
     case _        => "Invalid." // shouldn't happen
-  }
-```
-vs.
-  
-```scala
-def nextTrafficLight(trafficLight: TrafficLight) = 
-  trafficLight match {
-    case Red    => Green
-    case Yellow => Red
-    case Green  => Yellow
   }
 ```
 
