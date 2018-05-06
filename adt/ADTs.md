@@ -33,7 +33,7 @@ def nextTrafficLight(trafficLight: String) =
 Gotta test the invalid case!
 
 ```scala
-assert(describeTrafficLight("abc") == "Invalid.")
+assert(nextTrafficLight("abc") == "Invalid.")
 ```
 
 --- 
