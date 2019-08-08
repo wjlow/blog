@@ -14,19 +14,19 @@ _Disclaimer: I don't know if the code snippets compile! I wrote this all in GitH
 
 Given the following function:
 
-```
+```scala
 def doNothing(x: Int): Int = x
 ```
 
 This function takes an `Int` and returns it without doing anything to it. It is the simplest function you can have. Do we need to test it? Surely! What if someone comes along and changes it to `x + 1`? You need a test to capture that possibility.
 
-```
+```scala
 assert(doNothing(1) == 1)
 ```
 
 You might use a property based testing library to check _for all_ `Int`s:
 
-```
+```scala
 forAll(x => assert(doNothing(x) == x))
 ```
 
@@ -34,7 +34,7 @@ What if you were challenged to not write a test for this but still ensure that t
 
 Parametric types is precisely what you can use in this case. Consider this implementation:
 
-```
+```scala
 def doNothing[A](x: A): A = x
 ```
 
@@ -42,7 +42,7 @@ All we have done is introduce a parametric type `A`. You can read the function's
 
 These are not valid implementations:
 
-```
+```scala
 def doNothing[A](x: A): A = 500                            // A is not an Int so you can't just return 500
 def doNothing[A](x: A): A = x + 1                          // x is not an Int/Double
 def doNothing[A](x: A): A = x ++ "abc"                     // x is not a String
@@ -51,7 +51,7 @@ def doNothing[A](x: A): A = x ++ List("abc", "def", "ghi") // x is not a List[St
 
 This small change to the type signature means we have written a `doNothing` function that works on _all types_! It will pass all these assertions:
 
-```
+```scala
 assert(doNothing(1) == 1)
 assert(doNothing("abc") == "abc")
 assert(doNothing(List(1, 2, 3)) == List(1, 2, 3))
@@ -63,13 +63,13 @@ In addition to not needing to test this, we're now keeping it DRY!
 
 You can have parametric types at a higher level too, consider this:
 
-```
+```scala
 def transform(list: List[Int], func: Int => String): List[String] = ???
 ```
 
 What can this function do? Many things. These are all valid implementations:
 
-```
+```scala
 = list.map(elem => func(elem))
 = List("abc")
 = List()
@@ -78,14 +78,14 @@ What can this function do? Many things. These are all valid implementations:
 
 The first implementation is the only one that we consider correct. We would probably need the two tests below:
 
-```
+```scala
 assert(transform(List(1, 2, 3), num => s"$num") == List("1", "2", "3"))
 assert(transform(List(), num => s"$num") == List())
 ```
 
 We can write this function as this:
 
-```
+```scala
 def transform[F: Functor](container: F[Int], func: Int => String): F[String] =
   container.map(elem => func(elem))
 ```
@@ -102,13 +102,13 @@ Powerful languages like Haskell and Scala would have more powerful data types th
 
 Consider this function:
 
-```
+```scala
 def mean(numbers: List[Int]): Double = numbers.sum / numbers.length.toDouble
 ```
 
 If you're obsessed with testing edge cases, you'd pick up the fact that `numbers.length` can be `0`, which would result in some kind of runtime error. This means you'd have to handle that case differently, potentially returning an `Option[Double]` as such:
 
-```
+```scala
 def mean(numbers: List[Int]): Option[Double] = numbers match {
   case Nil => None                    // if numbers is an empty List aka. Nil
   case ns => Some(ns.sum / ns.length.toDouble) // otherwise
@@ -117,7 +117,7 @@ def mean(numbers: List[Int]): Option[Double] = numbers match {
 
 ...and you'd need a test for this:
 
-```
+```scala
 assert(mean(List()) == None)
 ```
 
@@ -135,7 +135,7 @@ It is impossible to call this function with an empty List. We have made this ill
 
 Consider this function:
 
-```
+```scala
 def showTrafficLight(trafficLight: String) = trafficLight match {
   case "red"    => "I am a red light"
   case "green"  => "I am a green light"
@@ -146,7 +146,7 @@ def showTrafficLight(trafficLight: String) = trafficLight match {
 
 Again, we'd have to write a test for the invalid case:
 
-```
+```scala
 assert(showTrafficLight("blah") == "Oops I am an invalid light")
 ```
 
@@ -154,7 +154,7 @@ Why oh why is it possible to get into this state in the first place? Imagine if 
 
 We can improve this by defining our own algebraic data type. Here we create a new type called `TrafficLight` and that it can be one of `Red`, `Green` and `Yellow`.
 
-```
+```scala
 sealed trait TrafficLight
 case object Red extends TrafficLight
 case object Green extends TrafficLight
@@ -163,7 +163,7 @@ case object Yellow extends TrafficLight
 
 Since we might be getting a traffic light as a `String` from a file (for instance), we would need to write a safe constructor to convert a `String` into our `TrafficLight`.
 
-```
+```scala
 def mkTrafficLight(str: String): Option[TrafficLight] = str match {
   case "red"    => Some(Red)
   case "green"  => Some(Green)
@@ -174,7 +174,7 @@ def mkTrafficLight(str: String): Option[TrafficLight] = str match {
 
 This function needs to be tested:
 
-```
+```scala
 assert(mkTrafficLight("red")    == Some(Red))
 assert(mkTrafficLight("green")  == Some(Green))
 assert(mkTrafficLight("yellow") == Some(Yellow))
@@ -183,7 +183,7 @@ assert(mkTrafficLight("blah")   == None)
 
 Now, we can rewrite `showTrafficLight`:
 
-```
+```scala
 def showTrafficLight(trafficLight: TrafficLight): String = trafficLight match {
   case Red    => "I am a red light"
   case Green  => "I am a green light"
@@ -197,7 +197,7 @@ Notice we don't need to handle the case where `trafficLight` is neither `Red`, `
 
 Let's look at a type that represents a `Person` with a `name` and `age`.
 
-```
+```scala
 case class Person(name: String, age: Int)
 ```
 
@@ -205,7 +205,7 @@ At first glance, you'd see that `name` is a `String`, which means that a `Person
 
 What if we used [refinement types](https://github.com/fthomas/refined)? Again, this isn't limited to Scala.
 
-```
+```scala
 type NonEmptyString = Refined[String, NonEmpty]
 type NonZeroInt = Refined[Int, NonZero]
 
@@ -214,7 +214,7 @@ case class Person(name: NonEmptyString, age: NonZeroInt)
 
 We have now _guaranteed_ that any instance of `Person` _will not_ have an empty name or a negative age. Since `Person` probably comes in as an HTTP payload or from a file, we'd need to write a safe constructor like this:
 
-```
+```scala
 def mkPerson(name: String, age: Int): Option[Person] = 
   (for {
     nonEmptyName <- refineV[NonEmpty](name)
